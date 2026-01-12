@@ -1,0 +1,164 @@
+### ScriptureLens AI Master Architecture and Design Specification 2026
+
+---
+
+### Executive summary
+
+**ScriptureLens AI** is reimagined as a premium, focused spiritual study app with a unified experience called the **Sacred Sanctuary**. The redesign enforces strict Clean Architecture, consolidates navigation to four core areas, preserves your on‑device Qwen model and Claude cloud AI, centralizes privacy and consent, and adopts a restrained “Liquid Glass” visual language optimized for high‑end mobile hardware and smooth, low‑latency interactions.
+
+**Primary goals**
+- Clarity: single responsibility modules and predictable data flow.  
+- Speed: instant perceived navigation and Qwen previews under 250ms.  
+- Privacy: local‑first routing, deterministic PII scrubbing, and explicit consent.  
+- Aesthetic: minimal glassmorphism with high contrast and motion tuned for 120fps.
+
+---
+
+### Design language Liquid Glass
+
+**Visual principles**
+- Spatial depth with layered translucent surfaces to reduce cognitive load.  
+- Glass used sparingly for persistent overlays and floating docks; content surfaces remain high‑contrast and legible.  
+- Motion is purposeful: subtle kinetic transitions, 120fps rendering, and reduced motion option.
+
+**Core tokens**
+
+| Role | Token | Hex |
+|---|---:|---:|
+| Background | Deep Space Black | `#000000` |
+| Surface | Indigo Charcoal | `#12121E` |
+| Accent | Radiant Cyan | `#00F2FF` |
+| Highlight | Celestial Gold | `#FFD700` |
+| Growth | Living Moss | `#A9C77D` |
+
+**Glass rules**
+- Backdrop blur: `sigmaX <= 25`, `sigmaY <= 25` for persistent overlays; transient micro‑cards use `sigma <= 8`.  
+- Frost opacity: surface color `rgba(255,255,255,0.06)` on dark base.  
+- Text contrast: body text minimum 4.5:1 against surface.
+
+**Typography**
+- **Lora** for scripture content.  
+- **Inter** for UI labels and controls.  
+- Scalable type system with accessible line heights and dynamic type support.
+
+---
+
+### Navigation and information architecture
+
+**Consolidated 4‑tab dock** (floating glass dock, IndexedStack to preserve state)
+
+| Tab | Name | Purpose |
+|---:|---|---|
+| 0 | The Sanctuary | Hub, Soul Sphere, pulse, legacy altar |
+| 1 | The Lens | Immersive reader, timeline, archaeology layer |
+| 2 | The Mentor | Journaling, DBS workflow, threaded reflections |
+| 3 | Search Settings | Global search, key vault, app settings |
+
+**Navigation rules**
+- Keep primary tasks within one tap.  
+- Use modal flows for deep tasks (mentorship sessions, prayer composer).  
+- Deep links only for auth callbacks and shared passages.  
+- Avoid nested tab bars; use contextual bottom sheets for actions.
+
+**Page responsibilities**
+- **The Sanctuary**: single identity surface combining daily pulse, AI follow‑ups, and profile summary.  
+- **The Lens**: verse navigation, chronological overlay, local RAG for definitions, Qwen preview + Claude deep insight.  
+- **The Mentor**: DBS Look Back/Up/Forward, seasonal threading, journal editor with privacy toggle.  
+- **Search Settings**: encrypted FTS5 search, key vault, sync controls, privacy audit.
+
+---
+
+### Hybrid intelligence strategy
+
+**Three‑tier intelligence**
+
+| Tier | Engine | Latency | Role |
+|---|---|---:|---|
+| L0 | Dart Regex | <1ms | Verse jumps, heuristic routing |
+| L1 | Qwen on device | ~200–300ms | Instant previews, intent routing, PII scrubbing, keyword extraction |
+| L2 | Claude cloud | ~2–4s | Deep theological synthesis, scholar correction, thread injection |
+
+**AI orchestration rules**
+- **Optimistic UI**: show Qwen preview immediately; stream Claude to replace or augment.  
+- **Local-first**: intent classification and PII scrubbing run on device. Cloud receives anonymized fact‑packets only.  
+- **Circuit breaker**: if Claude latency or error rate exceeds threshold, fall back to Qwen only and surface a graceful message.  
+- **Battery guard**: disable or unload Qwen when battery < 20% or per user setting.
+
+**AIService interface (domain contract)**
+```
+abstract class AIService {
+  Future<VersePreview> getInstantPreview(String verseText, String verseRef);
+  Stream<VerseInsight> getVerseInsightStream({
+    required String verseText,
+    required String verseReference,
+    List<String> userThreadIds = const [],
+  });
+  Future<List<String>> extractKeywords(String text);
+  Future<String> generatePrayer(String context, String theme);
+}
+```
+
+**Thread injection**
+- Domain use case `FindRelevantThreads` queries encrypted FTS5 index for theme matches and returns top N entries for Claude prompt injection.
+
+---
+
+### Privacy security and consent
+
+**Principles**
+- Default privacy: **AI access disabled** for new journal entries.  
+- Consent is explicit and auditable.  
+- PII never leaves device in raw form.
+
+**ConsentManager responsibilities**
+- Present consent modal and record consent events.  
+- Run deterministic PII scrub pipeline and tokenization.  
+- Gate embedding creation and Pinecone sync behind consent and feature flags.  
+- Maintain audit log of consent decisions (no raw PII stored).
+
+**PII scrubbing rules**
+- Remove emails, phone numbers, national identifiers, and replace names with tokens `[REDACTED_NAME]`.  
+- Preserve theological content and contextual phrases for embeddings.  
+- Log scrubbed tokens for debugging only; never store original PII.
+
+**Storage and keys**
+- SQLCipher AES‑256 for local DB.  
+- Key stored in `FlutterSecureStorage` and accessible only to `KeyVault` service.  
+- Cloud requests send only anonymized fact‑packets and theme tokens.
+
+---
+
+### Clean Architecture and file map
+
+**Layering**
+- **Presentation**: UI pages, widgets, Riverpod providers.  
+- **Domain**: Use cases, models, repository and service interfaces.  
+- **Data**: Concrete repositories, local and cloud data sources, AI adapters.
+
+**Top-level file map**
+```
+lib/
+  core/
+    models/
+    errors/
+    utils/
+  domain/
+    usecases/
+    repositories/
+    services/
+  data/
+    local/
+    cloud/
+    ai_adapters/
+  features/
+    sanctuary/
+    lens/
+    mentor/
+    search_settings/
+  ui/
+    theme/
+    widgets/
+  main.dart
+```
+
+... (truncated for brevity)

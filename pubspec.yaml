@@ -1,0 +1,52 @@
+name: scripture_lens
+description: A new Flutter project.
+publish_to: 'none'
+version: 1.0.0+7
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  supabase_flutter: ^2.8.1
+  google_fonts: ^6.2.1
+  flutter_riverpod: ^2.6.1
+  riverpod_annotation: ^2.6.1
+  glassmorphism: ^3.0.0
+  lucide_icons: ^0.257.0
+  drift: ^2.24.2
+  fl_chart: ^0.66.0
+  path_provider: ^2.1.5
+  path: ^1.9.1
+  flutter_secure_storage: ^9.2.2
+  http: ^1.6.0
+  app_links: ^6.3.4
+  anthropic_sdk_dart: ^0.2.0
+  xml: ^6.5.0
+  connectivity_plus: ^6.1.2
+  sqlcipher_flutter_libs: ^0.6.1
+  battery_plus: ^7.0.0
+  url_launcher: ^6.3.2
+  flutter_gemma: ^0.12.0  # On-device LLM inference (Qwen3 0.6B) - Updated for compatibility
+  intl: ^0.19.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+  riverpod_generator: ^2.6.1
+  build_runner: ^2.4.14
+  drift_dev: ^2.24.2
+
+flutter:
+  uses-material-design: true
+  assets:
+    - config.json
+    - assets/bibles/
+    - assets/discoveries/
+    - assets/models/qwen_intent.task  # Qwen 2.5 0.5B Instruct (renamed)
+
+  shaders:
+    - assets/shaders/soul_sphere.frag
