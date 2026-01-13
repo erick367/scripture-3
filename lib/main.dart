@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_gemma/flutter_gemma.dart';
-import 'features/bible/presentation/bible_reader_screen.dart';
+import 'features/app_shell/sacred_sanctuary_shell.dart';
 import 'features/auth/login_screen.dart';
 import 'features/auth/email_verification_screen.dart';
 import 'services/api_service.dart';
@@ -76,7 +76,7 @@ class _MyAppState extends ConsumerState<MyApp> {
       if (authService.isAuthenticated && authService.isEmailConfirmed) {
         // Navigate to Bible reader
         _navigatorKey.currentState?.pushReplacement(
-          MaterialPageRoute(builder: (_) => const BibleReaderScreen()),
+          MaterialPageRoute(builder: (_) => const SacredSanctuaryShell()),
         );
       } else if (mounted) {
         // Just refresh if still not confirmed
@@ -118,6 +118,6 @@ class _MyAppState extends ConsumerState<MyApp> {
     }
     
     // Fully authenticated and confirmed - show app
-    return const BibleReaderScreen();
+    return const SacredSanctuaryShell();
   }
 }
