@@ -86,6 +86,44 @@ class AppDatabase extends _$AppDatabase {
     
     return results.map((row) => verses.map(row.data)).toList();
   }
+  
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Consent Events
+  // ═══════════════════════════════════════════════════════════════════════════
+  
+  /// Insert a consent event into the database
+  Future<void> insertConsentEvent({
+    required String feature,
+    required bool granted,
+    String? notes,
+  }) async {
+    await customInsert(
+      '''
+      INSERT INTO consent_events (feature, granted, timestamp, notes)
+      VALUES (?, ?, ?, ?)
+      ''',
+      variables: [
+        Variable(feature),
+        Variable(granted ? 1 : 0),
+        Variable(DateTime.now().toIso8601String()),
+        Variable(notes),
+      ],
+    );
+  }
+  
+  /// Get consent events from the database
+  Future<List<Map<String, dynamic>>> getConsentEvents({int limit = 50}) async {
+    final results = await customSelect(
+      '''
+      SELECT * FROM consent_events
+      ORDER BY timestamp DESC
+      LIMIT ?
+      ''',
+      variables: [Variable(limit)],
+    ).get();
+    
+    return results.map((row) => row.data).toList();
+  }
 }
 
 /// Opens an encrypted database connection using SQLCipher

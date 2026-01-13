@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../domain/services/consent_manager.dart';
 import '../core/database/app_database.dart';
+import '../features/journal/presentation/journal_providers.dart'; // For appDatabaseProvider
 import 'qwen_service.dart';
 
 /// Implementation of ConsentManager for privacy and consent handling
@@ -83,16 +84,16 @@ class ConsentManagerImpl implements ConsentManager {
     var scrubbed = rawText;
     
     // 1. Email addresses
-    scrubbed = _emailPattern.replaceAll(scrubbed, '[REDACTED_EMAIL]');
+    scrubbed = scrubbed.replaceAll(_emailPattern, '[REDACTED_EMAIL]');
     
     // 2. Phone numbers (various formats)
-    scrubbed = _phonePattern.replaceAll(scrubbed, '[REDACTED_PHONE]');
+    scrubbed = scrubbed.replaceAll(_phonePattern, '[REDACTED_PHONE]');
     
     // 3. Social Security Numbers (US)
-    scrubbed = _ssnPattern.replaceAll(scrubbed, '[REDACTED_ID]');
+    scrubbed = scrubbed.replaceAll(_ssnPattern, '[REDACTED_ID]');
     
     // 4. Credit card numbers
-    scrubbed = _creditCardPattern.replaceAll(scrubbed, '[REDACTED_CARD]');
+    scrubbed = scrubbed.replaceAll(_creditCardPattern, '[REDACTED_CARD]');
     
     // 5. Names (use Qwen if available, otherwise regex heuristics)
     if (_qwenService != null) {
@@ -107,7 +108,7 @@ class ConsentManagerImpl implements ConsentManager {
     }
     
     // 6. Addresses (basic pattern)
-    scrubbed = _addressPattern.replaceAll(scrubbed, '[REDACTED_ADDRESS]');
+    scrubbed = scrubbed.replaceAll(_addressPattern, '[REDACTED_ADDRESS]');
     
     return scrubbed;
   }
@@ -144,10 +145,9 @@ Names:''';
   String _scrubNamesWithRegex(String text) {
     // Common name patterns (capitalized words that aren't at start of sentence)
     // This is imperfect but provides basic protection
-    var scrubbed = text;
     
     // Pattern: "my [relationship] [Name]" e.g., "my friend John"
-    scrubbed = _relationshipNamePattern.replaceAllMapped(scrubbed, (match) {
+    final scrubbed = text.replaceAllMapped(_relationshipNamePattern, (match) {
       return '${match.group(1)}[REDACTED_NAME]';
     });
     
