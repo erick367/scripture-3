@@ -7,6 +7,7 @@ import 'features/auth/email_verification_screen.dart';
 import 'services/api_service.dart';
 import 'services/auth_service.dart';
 import 'services/bible_preloader_service.dart';
+import 'ui/theme/liquid_glass_theme.dart';
 import 'package:app_links/app_links.dart';
 
 void main() async {
@@ -91,13 +92,7 @@ class _MyAppState extends ConsumerState<MyApp> {
       navigatorKey: _navigatorKey,
       title: 'ScriptureLens AI',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF1E1E1E),
-          brightness: Brightness.dark,
-        ),
-        useMaterial3: true,
-      ),
+      theme: LiquidGlassTheme.theme,
       home: _getInitialScreen(),
     );
   }

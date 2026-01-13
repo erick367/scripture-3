@@ -11,11 +11,12 @@ import 'tables/journal_entries_search.dart';
 import 'tables/ai_interactions.dart';
 import 'tables/verses.dart';
 import 'tables/api_cache.dart';
+import 'tables/consent_events.dart';
 
 part 'app_database.g.dart';
 
 /// Main application database with SQLCipher encryption
-@DriftDatabase(tables: [JournalEntries, SyncQueue, JournalEntriesSearch, AiInteractions, Verses, ApiCache])
+@DriftDatabase(tables: [JournalEntries, SyncQueue, JournalEntriesSearch, AiInteractions, Verses, ApiCache, ConsentEvents])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
   
@@ -23,7 +24,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(QueryExecutor executor) : super(executor);
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
 
   @override
   MigrationStrategy get migration {
@@ -48,6 +49,9 @@ class AppDatabase extends _$AppDatabase {
           await customStatement(
             'ALTER TABLE journal_entries ADD COLUMN look_forward_notes TEXT',
           );
+        }
+        if (from < 6) {
+          await m.createTable(consentEvents);
         }
       },
     );

@@ -8,6 +8,7 @@ import '../../../../core/database/app_database.dart';
 import '../../bible/presentation/state/bible_reader_state.dart';
 import '../../journal/presentation/journal_providers.dart';
 import '../../../../services/ai_mentor_service.dart';
+import '../../../../services/heuristic_router.dart';
 
 class SearchScreen extends ConsumerStatefulWidget {
   const SearchScreen({super.key});
@@ -42,6 +43,24 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
 
     try {
       final db = ref.read(appDatabaseProvider);
+      final router = ref.read(heuristicRouterProvider);
+      final bibleState = ref.read(bibleReaderStateProvider);
+      
+      // L0: Try Heuristic Router first for instant verse jumps (<1ms)
+      final location = router.parseReference(
+        query,
+        currentBook: bibleState.currentBook,
+        currentChapter: bibleState.currentChapter,
+      );
+      
+      if (location != null) {
+        // Direct verse navigation - instant!
+        HapticFeedback.selectionClick();
+        ref.read(bibleReaderStateProvider.notifier).setBook(location.book);
+        ref.read(bibleReaderStateProvider.notifier).setChapter(location.chapter);
+        if (mounted) Navigator.pop(context);
+        return;
+      }
       
       // Check if it's a "Feeling" (Natural Language)
       // Heuristic: If >= 3 words and doesn't look like a reference (e.g. "John 3")
@@ -53,7 +72,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
           _statusMessage = "Consulting AI Mentor...";
         });
 
-        // 1. Extract Keywords using Qwen
+        // 1. Extract Keywords using Qwen (L1)
         final keywords = await ref.read(aiMentorServiceProvider).extractSearchKeywords(query);
         
         if (mounted) {

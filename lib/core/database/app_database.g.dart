@@ -2125,6 +2125,306 @@ class ApiCacheCompanion extends UpdateCompanion<ApiCacheData> {
   }
 }
 
+class $ConsentEventsTable extends ConsentEvents
+    with TableInfo<$ConsentEventsTable, ConsentEventRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ConsentEventsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _featureMeta =
+      const VerificationMeta('feature');
+  @override
+  late final GeneratedColumn<String> feature = GeneratedColumn<String>(
+      'feature', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _grantedMeta =
+      const VerificationMeta('granted');
+  @override
+  late final GeneratedColumn<bool> granted = GeneratedColumn<bool>(
+      'granted', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: true,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("granted" IN (0, 1))'));
+  static const VerificationMeta _timestampMeta =
+      const VerificationMeta('timestamp');
+  @override
+  late final GeneratedColumn<DateTime> timestamp = GeneratedColumn<DateTime>(
+      'timestamp', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
+  static const VerificationMeta _notesMeta = const VerificationMeta('notes');
+  @override
+  late final GeneratedColumn<String> notes = GeneratedColumn<String>(
+      'notes', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, feature, granted, timestamp, notes];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'consent_events';
+  @override
+  VerificationContext validateIntegrity(Insertable<ConsentEventRow> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('feature')) {
+      context.handle(_featureMeta,
+          feature.isAcceptableOrUnknown(data['feature']!, _featureMeta));
+    } else if (isInserting) {
+      context.missing(_featureMeta);
+    }
+    if (data.containsKey('granted')) {
+      context.handle(_grantedMeta,
+          granted.isAcceptableOrUnknown(data['granted']!, _grantedMeta));
+    } else if (isInserting) {
+      context.missing(_grantedMeta);
+    }
+    if (data.containsKey('timestamp')) {
+      context.handle(_timestampMeta,
+          timestamp.isAcceptableOrUnknown(data['timestamp']!, _timestampMeta));
+    }
+    if (data.containsKey('notes')) {
+      context.handle(
+          _notesMeta, notes.isAcceptableOrUnknown(data['notes']!, _notesMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ConsentEventRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ConsentEventRow(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      feature: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}feature'])!,
+      granted: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}granted'])!,
+      timestamp: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}timestamp'])!,
+      notes: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}notes']),
+    );
+  }
+
+  @override
+  $ConsentEventsTable createAlias(String alias) {
+    return $ConsentEventsTable(attachedDatabase, alias);
+  }
+}
+
+class ConsentEventRow extends DataClass implements Insertable<ConsentEventRow> {
+  final int id;
+  final String feature;
+  final bool granted;
+  final DateTime timestamp;
+  final String? notes;
+  const ConsentEventRow(
+      {required this.id,
+      required this.feature,
+      required this.granted,
+      required this.timestamp,
+      this.notes});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['feature'] = Variable<String>(feature);
+    map['granted'] = Variable<bool>(granted);
+    map['timestamp'] = Variable<DateTime>(timestamp);
+    if (!nullToAbsent || notes != null) {
+      map['notes'] = Variable<String>(notes);
+    }
+    return map;
+  }
+
+  ConsentEventsCompanion toCompanion(bool nullToAbsent) {
+    return ConsentEventsCompanion(
+      id: Value(id),
+      feature: Value(feature),
+      granted: Value(granted),
+      timestamp: Value(timestamp),
+      notes:
+          notes == null && nullToAbsent ? const Value.absent() : Value(notes),
+    );
+  }
+
+  factory ConsentEventRow.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ConsentEventRow(
+      id: serializer.fromJson<int>(json['id']),
+      feature: serializer.fromJson<String>(json['feature']),
+      granted: serializer.fromJson<bool>(json['granted']),
+      timestamp: serializer.fromJson<DateTime>(json['timestamp']),
+      notes: serializer.fromJson<String?>(json['notes']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'feature': serializer.toJson<String>(feature),
+      'granted': serializer.toJson<bool>(granted),
+      'timestamp': serializer.toJson<DateTime>(timestamp),
+      'notes': serializer.toJson<String?>(notes),
+    };
+  }
+
+  ConsentEventRow copyWith(
+          {int? id,
+          String? feature,
+          bool? granted,
+          DateTime? timestamp,
+          Value<String?> notes = const Value.absent()}) =>
+      ConsentEventRow(
+        id: id ?? this.id,
+        feature: feature ?? this.feature,
+        granted: granted ?? this.granted,
+        timestamp: timestamp ?? this.timestamp,
+        notes: notes.present ? notes.value : this.notes,
+      );
+  ConsentEventRow copyWithCompanion(ConsentEventsCompanion data) {
+    return ConsentEventRow(
+      id: data.id.present ? data.id.value : this.id,
+      feature: data.feature.present ? data.feature.value : this.feature,
+      granted: data.granted.present ? data.granted.value : this.granted,
+      timestamp: data.timestamp.present ? data.timestamp.value : this.timestamp,
+      notes: data.notes.present ? data.notes.value : this.notes,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ConsentEventRow(')
+          ..write('id: $id, ')
+          ..write('feature: $feature, ')
+          ..write('granted: $granted, ')
+          ..write('timestamp: $timestamp, ')
+          ..write('notes: $notes')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, feature, granted, timestamp, notes);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ConsentEventRow &&
+          other.id == this.id &&
+          other.feature == this.feature &&
+          other.granted == this.granted &&
+          other.timestamp == this.timestamp &&
+          other.notes == this.notes);
+}
+
+class ConsentEventsCompanion extends UpdateCompanion<ConsentEventRow> {
+  final Value<int> id;
+  final Value<String> feature;
+  final Value<bool> granted;
+  final Value<DateTime> timestamp;
+  final Value<String?> notes;
+  const ConsentEventsCompanion({
+    this.id = const Value.absent(),
+    this.feature = const Value.absent(),
+    this.granted = const Value.absent(),
+    this.timestamp = const Value.absent(),
+    this.notes = const Value.absent(),
+  });
+  ConsentEventsCompanion.insert({
+    this.id = const Value.absent(),
+    required String feature,
+    required bool granted,
+    this.timestamp = const Value.absent(),
+    this.notes = const Value.absent(),
+  })  : feature = Value(feature),
+        granted = Value(granted);
+  static Insertable<ConsentEventRow> custom({
+    Expression<int>? id,
+    Expression<String>? feature,
+    Expression<bool>? granted,
+    Expression<DateTime>? timestamp,
+    Expression<String>? notes,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (feature != null) 'feature': feature,
+      if (granted != null) 'granted': granted,
+      if (timestamp != null) 'timestamp': timestamp,
+      if (notes != null) 'notes': notes,
+    });
+  }
+
+  ConsentEventsCompanion copyWith(
+      {Value<int>? id,
+      Value<String>? feature,
+      Value<bool>? granted,
+      Value<DateTime>? timestamp,
+      Value<String?>? notes}) {
+    return ConsentEventsCompanion(
+      id: id ?? this.id,
+      feature: feature ?? this.feature,
+      granted: granted ?? this.granted,
+      timestamp: timestamp ?? this.timestamp,
+      notes: notes ?? this.notes,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (feature.present) {
+      map['feature'] = Variable<String>(feature.value);
+    }
+    if (granted.present) {
+      map['granted'] = Variable<bool>(granted.value);
+    }
+    if (timestamp.present) {
+      map['timestamp'] = Variable<DateTime>(timestamp.value);
+    }
+    if (notes.present) {
+      map['notes'] = Variable<String>(notes.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ConsentEventsCompanion(')
+          ..write('id: $id, ')
+          ..write('feature: $feature, ')
+          ..write('granted: $granted, ')
+          ..write('timestamp: $timestamp, ')
+          ..write('notes: $notes')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -2135,6 +2435,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $AiInteractionsTable aiInteractions = $AiInteractionsTable(this);
   late final $VersesTable verses = $VersesTable(this);
   late final $ApiCacheTable apiCache = $ApiCacheTable(this);
+  late final $ConsentEventsTable consentEvents = $ConsentEventsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -2145,7 +2446,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         journalEntriesSearch,
         aiInteractions,
         verses,
-        apiCache
+        apiCache,
+        consentEvents
       ];
 }
 
@@ -3438,6 +3740,173 @@ typedef $$ApiCacheTableProcessedTableManager = ProcessedTableManager<
     (ApiCacheData, BaseReferences<_$AppDatabase, $ApiCacheTable, ApiCacheData>),
     ApiCacheData,
     PrefetchHooks Function()>;
+typedef $$ConsentEventsTableCreateCompanionBuilder = ConsentEventsCompanion
+    Function({
+  Value<int> id,
+  required String feature,
+  required bool granted,
+  Value<DateTime> timestamp,
+  Value<String?> notes,
+});
+typedef $$ConsentEventsTableUpdateCompanionBuilder = ConsentEventsCompanion
+    Function({
+  Value<int> id,
+  Value<String> feature,
+  Value<bool> granted,
+  Value<DateTime> timestamp,
+  Value<String?> notes,
+});
+
+class $$ConsentEventsTableFilterComposer
+    extends Composer<_$AppDatabase, $ConsentEventsTable> {
+  $$ConsentEventsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get feature => $composableBuilder(
+      column: $table.feature, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get granted => $composableBuilder(
+      column: $table.granted, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get timestamp => $composableBuilder(
+      column: $table.timestamp, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get notes => $composableBuilder(
+      column: $table.notes, builder: (column) => ColumnFilters(column));
+}
+
+class $$ConsentEventsTableOrderingComposer
+    extends Composer<_$AppDatabase, $ConsentEventsTable> {
+  $$ConsentEventsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get feature => $composableBuilder(
+      column: $table.feature, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get granted => $composableBuilder(
+      column: $table.granted, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get timestamp => $composableBuilder(
+      column: $table.timestamp, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get notes => $composableBuilder(
+      column: $table.notes, builder: (column) => ColumnOrderings(column));
+}
+
+class $$ConsentEventsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ConsentEventsTable> {
+  $$ConsentEventsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get feature =>
+      $composableBuilder(column: $table.feature, builder: (column) => column);
+
+  GeneratedColumn<bool> get granted =>
+      $composableBuilder(column: $table.granted, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get timestamp =>
+      $composableBuilder(column: $table.timestamp, builder: (column) => column);
+
+  GeneratedColumn<String> get notes =>
+      $composableBuilder(column: $table.notes, builder: (column) => column);
+}
+
+class $$ConsentEventsTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $ConsentEventsTable,
+    ConsentEventRow,
+    $$ConsentEventsTableFilterComposer,
+    $$ConsentEventsTableOrderingComposer,
+    $$ConsentEventsTableAnnotationComposer,
+    $$ConsentEventsTableCreateCompanionBuilder,
+    $$ConsentEventsTableUpdateCompanionBuilder,
+    (
+      ConsentEventRow,
+      BaseReferences<_$AppDatabase, $ConsentEventsTable, ConsentEventRow>
+    ),
+    ConsentEventRow,
+    PrefetchHooks Function()> {
+  $$ConsentEventsTableTableManager(_$AppDatabase db, $ConsentEventsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ConsentEventsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ConsentEventsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ConsentEventsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<String> feature = const Value.absent(),
+            Value<bool> granted = const Value.absent(),
+            Value<DateTime> timestamp = const Value.absent(),
+            Value<String?> notes = const Value.absent(),
+          }) =>
+              ConsentEventsCompanion(
+            id: id,
+            feature: feature,
+            granted: granted,
+            timestamp: timestamp,
+            notes: notes,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            required String feature,
+            required bool granted,
+            Value<DateTime> timestamp = const Value.absent(),
+            Value<String?> notes = const Value.absent(),
+          }) =>
+              ConsentEventsCompanion.insert(
+            id: id,
+            feature: feature,
+            granted: granted,
+            timestamp: timestamp,
+            notes: notes,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$ConsentEventsTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $ConsentEventsTable,
+    ConsentEventRow,
+    $$ConsentEventsTableFilterComposer,
+    $$ConsentEventsTableOrderingComposer,
+    $$ConsentEventsTableAnnotationComposer,
+    $$ConsentEventsTableCreateCompanionBuilder,
+    $$ConsentEventsTableUpdateCompanionBuilder,
+    (
+      ConsentEventRow,
+      BaseReferences<_$AppDatabase, $ConsentEventsTable, ConsentEventRow>
+    ),
+    ConsentEventRow,
+    PrefetchHooks Function()>;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -3454,4 +3923,6 @@ class $AppDatabaseManager {
       $$VersesTableTableManager(_db, _db.verses);
   $$ApiCacheTableTableManager get apiCache =>
       $$ApiCacheTableTableManager(_db, _db.apiCache);
+  $$ConsentEventsTableTableManager get consentEvents =>
+      $$ConsentEventsTableTableManager(_db, _db.consentEvents);
 }
