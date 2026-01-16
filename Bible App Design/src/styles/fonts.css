@@ -1,0 +1,9 @@
+@import url('https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap');
+
+.font-scripture {
+  font-family: 'Crimson Text', serif;
+}
+
+.font-ui {
+  font-family: 'Inter', sans-serif;
+}

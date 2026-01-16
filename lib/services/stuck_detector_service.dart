@@ -1,3 +1,4 @@
+/*
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:drift/drift.dart';
 import '../core/database/app_database.dart';
@@ -20,7 +21,7 @@ class StuckDetectorService {
       final recentEntries = await (_database.select(_database.journalEntries)
             ..where((entry) => entry.createdAt.isBiggerOrEqualValue(threeDaysAgo))
             ..orderBy([(entry) => OrderingTerm.desc(entry.createdAt)]))
-          .get();
+            .get();
 
       if (recentEntries.isEmpty) {
         return null; // No recent activity at all
@@ -94,3 +95,4 @@ final stuckStatusProvider = FutureProvider<StuckStatus?>((ref) async {
   final service = ref.read(stuckDetectorServiceProvider);
   return service.checkIfStuck();
 });
+*/

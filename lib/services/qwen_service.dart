@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_gemma/flutter_gemma.dart';
 import 'battery_guard_service.dart';
@@ -28,6 +29,10 @@ class QwenService {
   bool _isInitialized = false;
   bool _isInitializing = false;
   bool _platformUnsupported = false; // Tracks if platform doesn't support on-device AI
+  
+  // Request queue to prevent concurrent calls
+  bool _isProcessing = false;
+  final List<_QwenRequest> _requestQueue = [];
 
   QwenService(this._batteryGuard, this._preloader);
 
@@ -241,6 +246,7 @@ class QwenService {
   /// Generate a response for the given prompt
   /// Returns response text or throws QwenException on error
   /// 
+  /// Uses a request queue to prevent concurrent calls (Qwen only supports 1 request at a time)
   /// [prompt] - The input prompt
   /// [maxTokens] - Maximum tokens to generate (default: 100)
   /// [temperature] - Creativity level 0.0-1.0 (default: 0.7)
@@ -257,6 +263,52 @@ class QwenService {
       );
     }
     
+    // Create a request and add to queue
+    final request = _QwenRequest(prompt, maxTokens, temperature);
+    _requestQueue.add(request);
+    
+    // If not currently processing, start the queue
+    if (!_isProcessing) {
+      _processQueue();
+    }
+    
+    // Wait for this request's result
+    return await request.completer.future;
+  }
+  
+  /// Process queued requests one at a time
+  Future<void> _processQueue() async {
+    if (_isProcessing || _requestQueue.isEmpty) return;
+    
+    _isProcessing = true;
+    
+    while (_requestQueue.isNotEmpty) {
+      final request = _requestQueue.removeAt(0);
+      
+      try {
+        final result = await _generateInternal(
+          request.prompt,
+          maxTokens: request.maxTokens,
+          temperature: request.temperature,
+        );
+        request.completer.complete(result);
+      } catch (e) {
+        request.completer.completeError(e);
+      }
+      
+      // Small delay between requests to ensure clean state
+      await Future.delayed(const Duration(milliseconds: 100));
+    }
+    
+    _isProcessing = false;
+  }
+  
+  /// Internal generation method (called by queue processor)
+  Future<String> _generateInternal(
+    String prompt, {
+    required int maxTokens,
+    required double temperature,
+  }) async {
     await _ensureInitialized();
 
     try {
@@ -273,7 +325,7 @@ class QwenService {
       final response = await chat.generateChatResponse();
       
       // CRITICAL: Dispose model immediately to force fresh state for next request
-      // This prevents the "repetition bug" where it remembers previous verses
+      // This prevents the \"repetition bug\" where it remembers previous verses
       await _disposeModel();
       
       final duration = DateTime.now().difference(startTime);
@@ -283,7 +335,7 @@ class QwenService {
       String responseText = response.toString().trim();
       
       // Remove TextResponse wrapper if present
-      if (responseText.startsWith('TextResponse("') && responseText.endsWith('")')) {
+      if (responseText.startsWith('TextResponse(\"') && responseText.endsWith('\")')) {
         responseText = responseText.substring(14, responseText.length - 2);
       }
       
@@ -390,4 +442,14 @@ class QwenException implements Exception {
 
   @override
   String toString() => 'QwenException: $message (type: $type)';
+}
+
+/// Internal request wrapper for queueing
+class _QwenRequest {
+  final String prompt;
+  final int maxTokens;
+  final double temperature;
+  final Completer<String> completer = Completer<String>();
+
+  _QwenRequest(this.prompt, this.maxTokens, this.temperature);
 }

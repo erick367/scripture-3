@@ -1,3 +1,4 @@
+/*
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -153,3 +154,4 @@ List<VersesCompanion> _parseBibleJson(Map<String, dynamic> args) {
   
   return verses;
 }
+*/

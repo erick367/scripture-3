@@ -4,8 +4,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart'; // For compute()
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../models/verse_insight.dart';
-import '../exceptions/mentor_exception.dart';
+import 'models/verse_insight.dart';
+import 'mentor_exception.dart';
 import 'package:xml/xml.dart' as xml;
 import 'token_counter_service.dart';
 import 'qwen_service.dart';
@@ -901,6 +901,80 @@ Do NOT correct minor details like exact wording, sequence of events, or names.''
     } catch (e) {
       print('Error getting scholar correction: $e');
       return null; // Fail gracefully
+    }
+  }
+
+  /// Generate a pastoral follow-up question based on user's initial intent
+  /// Uses Claude for high-quality, empathetic questions (not generic Qwen)
+  /// 
+  /// [userMessage] - The user's initial spiritual request or concern
+  /// Returns a warm, clarifying question to understand their situation better
+  Future<String> generateFollowUpQuestion(String userMessage) async {
+    // Validate connectivity before making API call
+    if (!await _canConnect()) {
+      // Fallback to a gentle default question
+      return "Tell me more about what's on your heart today.";
+    }
+    
+    await _ensureInitialized();
+
+    final prompt = '''You are a warm, pastoral spiritual companion. The user just shared:
+
+"$userMessage"
+
+Generate ONE clarifying follow-up question to understand their specific situation better. Be:
+- Warm and empathetic (not clinical)
+- Specific to what they shared (not generic)
+- Open-ended to invite sharing
+- Brief (max 20 words)
+
+Examples:
+- If they mention stress: "What aspect of this situation weighs most heavily on you right now?"
+- If seeking direction: "What decision or path are you prayerfully considering?"
+- If expressing gratitude: "How has God's faithfulness shown up in your life lately?"
+
+Question:''';
+
+    try {
+      final response = await _client!.createMessage(
+        request: CreateMessageRequest(
+          model: Model.modelId('claude-3-5-haiku-20241022'),
+          maxTokens: 100,
+          messages: [
+            Message(
+              role: MessageRole.user,
+              content: MessageContent.text(prompt),
+            ),
+          ],
+        ),
+      );
+
+      // Extract text from response
+      String questionText = '';
+      final contentBlock = response.content;
+      contentBlock.mapOrNull(
+        blocks: (blocks) {
+          for (final block in blocks.value) {
+            block.mapOrNull(
+              text: (textBlock) {
+                questionText = textBlock.text;
+              },
+            );
+          }
+        },
+        text: (textValue) {
+          questionText = textValue.value;
+        },
+      );
+
+      final trimmed = questionText.trim();
+      return trimmed.isEmpty 
+          ? "Tell me more about what's on your heart today." 
+          : trimmed;
+      
+    } catch (e) {
+      print('Error generating follow-up: $e');
+      return "Tell me more about what's on your heart today.";
     }
   }
 }

@@ -61,5 +61,9 @@
 		<string>https</string>
 		<string>http</string>
 	</array>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>ScriptureLens needs microphone access to record your spiritual reflections via voice on The Path.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>ScriptureLens uses speech recognition to convert your voice into text for journaling and AI interaction.</string>
 </dict>
 </plist>

@@ -1,4 +1,4 @@
-import '../models/verse_insight.dart';
+import 'models/verse_insight.dart';
 
 /// Provides instant placeholder insights while AI generates the real response
 class OptimisticInsightProvider {

@@ -60,3 +60,5 @@ local.properties
 *_clean.md
 convert_html_to_pdf.py
 clean_emojis.py
+assets/models/*.task
+assets/models/*.task

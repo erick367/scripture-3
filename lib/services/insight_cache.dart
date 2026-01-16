@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../models/verse_insight.dart';
+import 'models/verse_insight.dart';
 
 /// Simple in-memory cache for verse insights
 class InsightCache {
